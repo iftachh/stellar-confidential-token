@@ -8,7 +8,9 @@
 \newcommand{\history}{\mathsf{history}}
 \newcommand{\balance}{\mathsf{avlBlance}}
 \newcommand{\pendbalance}{\mathsf{pndBalance}}
-\newcommand{\tcount}{\mathsf{tcount}}
+\newcommand{\tcount}{\mathsf{pndCount}}
+%\newcommand{\gcount}{\mathsf{gCount}}
+
 
 \newcommand{\historylog}{\mathsf{log}}
 \newcommand{\sConfTran}{\mathsf{ConfTrans}}
@@ -16,11 +18,12 @@
 \newcommand{\pConfTran}{\MathAlgX{\Pi_\sConfTran}}
 
 
-\newcommand{\posvst}{{\mathsf{pos}}}
+\newcommand{\Auditor}{\Ac}
 \newcommand{\Chain}{{\MathAlgX{C}}}
-\newcommand{\pcount}{p_{\mathsf{pcount}} }
-\newcommand{\psize}{p_{\mathsf{size}} }
 
+\newcommand{\pcountCns}{p_{\mathsf{count}} }
+\newcommand{\psizeCns}{p_{\mathsf{size}} }
+%\newcommand{\gcountCns}{g_{\mathsf{count}} }
 
 
 %Relations
@@ -91,11 +94,11 @@ In this section we define the ideal functionality for the confidential transacti
 	
 	
 	
-	\item[Parties:]	Mint \Mc, chain holder  \Cc and users  $\Uc_1, 
+	\item[Parties:]	Mint \Mc, chain holder  \Cc, auditor \Auditor,  and users  $\Uc_1, 
 	\ldots,\Uc_n$.
 	
 	
-	\item[Parameters:] $\pcount,\psize,q \in \N$.
+	\item[Parameters:] $\pcountCns,\psizeCns,q \in \N$.
 	
 	
 	\begin{description}
@@ -105,7 +108,7 @@ In this section we define the ideal functionality for the confidential transacti
 		\begin{enumerate}
 			
 			
-			\item \Assert{$x\in (\psize) \sland \tcount_d\le  \pcount$}.
+			\item \Assert{$x\in (\psizeCns) \sland \tcount_d\le  \pcountCns$}.
 			
 			\item $\tcount_d^{++}$.
 			
@@ -119,9 +122,9 @@ In this section we define the ideal functionality for the confidential transacti
 		
 	
 		\begin{enumerate}
-			\item \Assert{$ x\in (\psize) \sland \tcount\le  \pcount \sland \balance_s  \ge x $}.
+			\item \Assert{$ x\in (\psizeCns) \sland \tcount_d\le  \pcountCns  \sland \balance_s  \ge x $}.
 			
-				\item $\tcount^{++}$.
+				\item $\tcount_d^{++}$.
 				
 				
 			\item $\balance_s \minuseq x$.
@@ -143,7 +146,7 @@ In this section we define the ideal functionality for the confidential transacti
 			
 			\item $\Assert{\balance_i \le q/4}$.\footnote{This check is to prevent overflow. In reality, it will never fire.}
 			
-			\item $\tcount \asn 0$.
+			\item $\tcount_i \asn 0$.
 			
 			
 			\item  $\balance_i  \pluseq \pendbalance_i$.
@@ -176,7 +179,7 @@ In this section we define the ideal functionality for the confidential transacti
 		
 	%	\item[History.]     Upon receiving $\history$ from  party $\Uc_i$ and \Cc:   Send $(\historylog,\historylog_i)$ to  $\Uc_i$.	 
 		
-		\item[Audit.]      \Inote{TODO}
+		\item[Audit.]     Upon receiving $\audit$ from  \Auditor, send $(\transfer,s,d,x)$ to \Auditor, for each transfer command that happened since  the init call.
 		
 	\end{description}
 
@@ -195,7 +198,7 @@ We split  the protocol into several sub-protocols defined below, and  use the  f
 	
 \item[Parties:] Mint \Mc, chain-holder \Cc and users  $\Uc_1, \ldots,\Uc_n$.
 
-\item[Parameters:] $\pcount,\psize,q \in \N$.
+\item[Parameters:] $\pcountCns,\psizeCns,q \in \N$.
 
 \item[Subprotocols:]  See below.
 \end{protocol}
@@ -267,11 +270,11 @@ This sub-protocol is were the encryption key are sampled and shared, and the cha
 	
 	
 	
-	\item[Common input:]  $d\in [n]$ and $x\in (\psize)$.
+	\item[Common input:]  $d\in [n]$ and $x\in (\psizeCns)$.
 	
 	\item[Operation:]  \Cc~
 		\begin{enumerate}
-			\item \Assert{$d\in [n] \sland \tcount_d  \le \pcount \sland x\in (\psize)$}
+			\item \Assert{$d\in [n] \sland \tcount_d  \le \pcountCns \sland x\in (\psizeCns)$}
 			
 			\item  $\oP_d \pluseq \Enc_{\pk_d}(x)$.
 				
@@ -289,12 +292,12 @@ The protocol uses ZK and ZKPOK proofs for the   following  relations:
 \begin{description}
 	\item[In range.] $\rRp =\rRpDef$.\label{rel:Rp}
 	
-	Namely, encryption of values in $[\psize]$, witness is random coins.
+	Namely, encryption of values in $[\psizeCns]$, witness is random coins.
 	
 		\item[In range using secret key.] $\rRpSk =\rRpSkDef$.\label{rel:RpSk}
 		
 		
-		Namely, encryption of values in $[\psize]$, witness is secret key. 
+		Namely, encryption of values in $[\psizeCns]$, witness is secret key. 
 		\begin{remark}
 			To prove this relation, see \cref{sec:ChanksEg:Eg:ZK}, the prover decrypts the ciphertext, encrypt it again using fresh randomness, and use this randomness as the witness for the proof above. By storing the random coins used to generate the original ciphertext, one significantly reduce the proof's cost.
 		\end{remark}
@@ -320,7 +323,7 @@ The protocol uses ZK and ZKPOK proofs for the   following  relations:
 	
 	\item[Common input:] $d\in [n]$. \comment{Payee (destination) name.}
 	
-	\item[$\Uc_s$'s private  input:] $x \in (\psize)$.
+	\item[$\Uc_s$'s private  input:] $x \in (\psizeCns)$.
 	
 \item[Operation:] ~
 	
@@ -333,7 +336,7 @@ The protocol uses ZK and ZKPOK proofs for the   following  relations:
 			\item $\oX_s \getsr \Enc_{\pk_d}(x;r_s)$ for $r_s \getsr \cD$.
 			
 		
-			\item $\pi^\RPs \getsr \pZKPOK{\rRp}((\pk_s,\oX_s,\psize),(x,r_s))$.
+			\item $\pi^\RPs \getsr \pZKPOK{\rRp}((\pk_s,\oX_s,\psizeCns),(x,r_s))$.
 			
 			
 			\item $\oX_d \getsr \Enc_{\pk_d}(x;r_d)$ for $r_d \getsr \cD$.
@@ -344,7 +347,7 @@ The protocol uses ZK and ZKPOK proofs for the   following  relations:
 			
 		
 			
-		\item $\pi^\RpSkS \getsr \pZK{\rRpSk}((\pk_s,\oA_s- \oX_s, q/2),\sk_s)$.\footnote{Assuming there are never at most  $q/\psize$  increments of $\oA_s$, it holds that  $\oA_s$ is smaller than $q/2$. Since $\psize \le q/2$ as well, this check is equivalent to ``$\oA_s- \oX_s$ encrypts a non-negative value''. \Inote{Rephrase}} 
+		\item $\pi^\RpSkS \getsr \pZK{\rRpSk}((\pk_s,\oA_s- \oX_s, q/2),\sk_s)$.\footnote{Since  the protocol enforces that there  are at most  $q/\psizeCns$  increments of $\oA_s$, it holds that  $\oA_s$ is smaller than $q/2$. So the Since $\psizeCns \le q/2$ as well, this check is equivalent to ``$\oA_s- \oX_s$ encrypts a non-negative value''. \Inote{Rephrase}} 
 			
 			
 			\item Send $(\oX_s,\oX_d,\pi^\RPs,\pi^\Eqs,\pi^\RpSkS)$ to \Cc.   
@@ -355,9 +358,9 @@ The protocol uses ZK and ZKPOK proofs for the   following  relations:
 		
 		\begin{enumerate}
 			
-			\item  $\Assert{\tcount_d \le \pcount}$.
+			\item  $\Assert{\tcount_d \le \pcountCns}$.
 				
-			\item   $\vZKPOK{\rRp}((\pk_d,\oX_d,\psize),\pi^\RPs)$,
+			\item   $\vZKPOK{\rRp}((\pk_d,\oX_d,\psizeCns),\pi^\RPs)$,
 			
 			 $\vZK{\rEq}((\pk_s,\pk_d,\oX_s,\oX_d),\pi^\Eqs)$ and
 			 
@@ -397,6 +400,7 @@ The protocol uses ZK and ZKPOK proofs for the   following  relations:
 	
 %	\item Call $\vZKPOK{\RpSkS}((\pk_s,\oA_i,q/4),\pi^\RPs)$.
 	
+	\item $\Assert{\balance_i \le q/4}$
 		
 	\item $\oA_i  \pluseq \oP_i$.
 	

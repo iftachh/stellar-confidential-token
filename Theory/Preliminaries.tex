@@ -7,11 +7,7 @@ Let $\N$ denote the set of natural numbers.  For $n\in \N$, let $[n] \eqdef \set
 
 
 \subsection{Homomorphic Encryption}
-An homomorphic encryption over $\Z_q$ is a triplet $(\KeyGen,\Enc,\Dec)$ of efficient algorithms, with the standard correctness and semantic security properties.  In addition, there exist an efficient  addition operation denote $+$  such that for uniformly  generated public key  $\pk$, and any two  messages $x_0,x_1\in \Z_q$,  it holds that  $\Enc_\pk(x_0) + \Enc_\pk(x_1) $ are computationally indistinguishable from $\Enc_\pk(x_0+ x_1 \bmod q)$.
-
-\Inote{Address randomness} 
-
-\Inote{Address Notation} 
+An homomorphic encryption over $\Z_q$ is a triplet $(\KeyGen,\Enc,\Dec)$ of efficient algorithms, with the standard correctness and semantic security properties.  In addition, there exist an efficient  addition operation denote $+$  such that for uniformly  generated public key  $\pk$, and any two  messages $x_0,x_1\in \Z_q$,  it holds that  $\Enc_\pk(x_0) + \Enc_\pk(x_1) $ are computationally indistinguishable from $\Enc_\pk(x_0+ x_1 \bmod q)$. We let $\Enc_\pk(x;r)$ to denote that the encryption algorithm is using randomness $r$. 
 
 \begin{remark}[Implicit  randomness]
 When calling  \KeyGen or \Enc, or any other randomized algorithms,  we sometimes explicitly provide the random coins. When we do not, it means that the algorithm sample them by itself. 
@@ -20,7 +16,7 @@ When calling  \KeyGen or \Enc, or any other randomized algorithms,  we sometimes
 
 \subsection{Security Model}
 
-\Inote{UC}
+\Inote{Define UC security}
 
 
-\Inote{sid}
+\Inote{Address sid}
