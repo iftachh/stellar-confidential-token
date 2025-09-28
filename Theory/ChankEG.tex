@@ -149,7 +149,7 @@
 
 \section{The Chunk-ElGamal  Encryption Scheme}\label{sec:ChanksEg}
 In this section, we define the  (almost) additive homomorphic encryption scheme based on ElGamal multiplicative  homomorphic encryption scheme.  \Inote{give citations}
-The idea is to bootstrap the so-called   \textit{ElGamal in-the exponent}   additive homomorphic encryption/commitment  scheme,\footnote{It is called ElGamal ``in-the-exponent'' due to typical multiplicative group notation. Here use additive group notation, but keep the name for historical reason.}  which in turn is based on the  ElGamal multiplicative  homomorphic encryption scheme, that lacks efficient decryption algorithm, by splitting the plain text into small ``chunks''. That  is, we present a message $a\in Z_t$ as $\sum_{i \in (t/c)}   2^{i c} \cdot a_i$, where $c$, the chunk size, is  some inEgEr  dividing $t$, and encrypt each of the $a_i$ using    additive homomorphic EG. To decrypt $\oA= (A_0,\ldots,A_{t/c-1})$, one  
+The idea is to bootstrap the so-called   \textit{ElGamal in-the exponent}   additive homomorphic encryption/commitment  scheme,\footnote{It is called ElGamal ``in-the-exponent'' due to typical multiplicative group notation. Here use additive group notation, but keep the name for historical reason.}  which in turn is based on the  ElGamal multiplicative  homomorphic encryption scheme, that lacks efficient decryption algorithm, by splitting the plain text into small ``chunks''. That  is, we present a message $a\in Z_t$ as $\sum_{i \in (t/c)}   2^{i c} \cdot a_i$, where $c$, the chunk size, is  some integer  dividing $t$, and encrypt each of the $a_i$ using    additive homomorphic EG. To decrypt $\oA= (A_0,\ldots,A_{t/c-1})$, one  
 \begin{enumerate}
 	\item Decrypt   each $A_i$ to get $a_i  \cdot G$.
 	\item Use brute force to find $a$.\footnote{One can use    processing to speed-up this part from $c$ group operations to $\sqrt{c}$  operations, or even \Inote{cite} to   $\sqrt[3]{c}$.}
@@ -263,14 +263,14 @@ Namely, the right hand side if a twisted ElGamal ciphertext is just a  Pedersen 
 \end{enumerate}
 
 \begin{theorem}[Security  of twisted-ElGamal in-the-exponent]\label{thm:tEGinExp}
-	Assuming DDH is hard over $\cG$, then \cref{alg:tEGinExp} is  a perfectly binding,  semantically secure additively homomorphic scheme over $\Z_q$, with the following caveat:  the description only guaranteed to work on encryptions of explain in $(b)$,   for $1^b$ being the parameter  of the key generation algorithm:
+	Assuming DDH is hard over $\cG$, then \cref{alg:tEGinExp} is  a perfectly binding,  semantically secure additively homomorphic scheme over $\Z_q$, with the following caveat:  the decryption  only guaranteed to work on encryptions of plaintexts in $(b)$ ($1^b$ is the parameter of the key-generation algorithm)..
 \end{theorem}
 
 
 
 \subsubsection{Zero-Knowledge Proofs}\label{sec:ChanksEg:Eg:ZK}
 
-\Inote{Remove unused proofs}
+%\Inote{Remove unused proofs}
 
 In \cref{sec:ChanksEg:EgScheme}, we make use of ZK proofs for the following relations regrading the above scheme.   We use the following notation:
 \begin{notation}
@@ -391,12 +391,16 @@ Namely, decryption without finding discrete log.
 
 	
 \subsection{The Chunk-ElGamal  Scheme}\label{sec:ChanksEg:EgScheme}
-In the following we fix $t,c\in \N$ with $t\le q$ and $\ell \asn t/c \in \N$. The chunk ElGamal encryption scheme  is defined as follows:
+The chunk ElGamal encryption scheme  is defined as follows:
 
 
+\newcommand{\cs}{c}
+\begin{notation}
+Fix $t,\cs\in \N$ with $t\le q$ and $\ell \asn t/c \in \N$. 	
+\end{notation}
 
-\begin{definition}[Base factorization]\label{def:basefactor}
-For $a\in \Z_q$ let $a_0,\ldots,a_{\ell-1}$ so that $a =  \sum_{i \in (\ell)}    2^{i c} \cdot a_i$.
+\begin{definition}[Base factorization \basefactor]\label{def:basefactor}
+For $a\in (t)$ let $\basefactor(a) \eqdef (a_0,\ldots,a_{\ell-1})$ so that $a =  \sum_{i \in (\ell)}    2^{i \cs} \cdot a_i$.
 \end{definition}
 
 
@@ -404,11 +408,12 @@ For $a\in \Z_q$ let $a_0,\ldots,a_{\ell-1}$ so that $a =  \sum_{i \in (\ell)}   
 	
 	\item[Key generation:] $\KeyGen(1^b,H)$: act as $\EgKg(1^b,H)$.
 	
-	\item[Encryption:] $\Enc_\pk(a)$
-	
+	\item[Encryption:] $\Enc_\pk(a)$ 
 	\begin{enumerate}
+		
+		\item $\Assert{a\in (t)}$.
+		
 		\item Compute $(a_0,\ldots,a_{\ell-1}) \asn \basefactor(a)$. 
-	\Inote{Define \basefactor}
 		
 		\item For each $i\in (\ell)$: let $\tA_i \getsr \EgEnc_\pk(a_i)$.
 		
@@ -416,11 +421,11 @@ For $a\in \Z_q$ let $a_0,\ldots,a_{\ell-1}$ so that $a =  \sum_{i \in (\ell)}   
 		
 	\end{enumerate}
 	 
-	\item[Decription:] $\Dec_\sk(\oM,b)$   
+	\item[Decription:] $\Dec_\sk(\oM)$   
 	\begin{enumerate}
-		\item 	 For each $i\in (\ell)$: let $m_i \getsr \EgDec_\sk(\oM_i,b)$.
+		\item 	 For each $i\in (\ell)$: let $m_i \getsr \EgDec_\sk(\oM_i)$.
 		
-		\item Let  $m \asn \sum_{i \in (\ell)}   2^{i c} \cdot  m_i $. \Inote{What is $c?$}
+		\item Let  $m \asn \sum_{i \in (\ell)}   2^{i \cs} \cdot  m_i $.
 		
 		\item Output $m$.
 	\end{enumerate}
@@ -434,7 +439,15 @@ For $a\in \Z_q$ let $a_0,\ldots,a_{\ell-1}$ so that $a =  \sum_{i \in (\ell)}   
 
 
 \begin{theorem}[Security  of Chunk ElGamal]\label{thm:ChunkEG}
-	Assuming \DDH is hard over $\cG$, then \cref{alg:ChunkEGa} is  a perfectly binding,  semantically secure additively homophobic scheme over $\Z_q$, with the following caveat work on encryptions of plaintext  $a$ so that $\basefactor(a)\in (-b,b)^\ell$ ($1^b$ being the input of the key generation algorithm).
+	Assuming \DDH is hard over $\cG$, then \cref{alg:ChunkEGa} is  a perfectly binding,  semantically secure additively homophobic scheme over $\Z_q$, with the following caveats
+	\begin{enumerate}
+		
+		\item 	Encryption  algorithm only encrypts values in $(t)$.
+		
+		 
+		\item Decryption algorithm only decrypts encryptions of a plaintext  $a$ with $\basefactor(a)\in (b)^\ell$ ($1^b$ is the parameter of the key-generation algorithm).
+	\end{enumerate}
+	
 \end{theorem}
 
 
@@ -503,12 +516,12 @@ In the following, we omit the parameter $b$ from the input list of  \Dec.  We wi
 
 	\begin{enumerate}
 		
-		\item Let  $a \asn  \sum_{i\in (\ell)}    2^c \cdot \oa_i$. 
+		\item Let  $a \asn  \sum_{i\in (\ell)}    2^\cs \cdot \oa_i$. 
 		
-		\item For both $j\in \zo$:  $\tA_j \asn  \sum_i  2^c \cdot (\oA_j)_i$. 
+		\item For both $j\in \zo$:  $\tA_j \asn  \sum_i  2^\cs \cdot (\oA_j)_i$. 
 		
 		  
-		\item    $r_1 \asn  \sum_{i\in (\ell)}  2^c \cdot (\orr_1)_i$. 
+		\item    $r_1 \asn  \sum_{i\in (\ell)}  2^\cs \cdot (\orr_1)_i$. 
 			
 		 
 		\item Output $\pi \asn \pZK{\rEgEq}((\pk,\tA_0,\tA_1), (e_0,r_1))$.
@@ -549,10 +562,9 @@ In the following, we omit the parameter $b$ from the input list of  \Dec.  We wi
 		
 		\begin{enumerate}
 			
-			\item    For both $j\in \zo$:   $\tA_j \asn  \sum_{i\in (\ell)}    2^c \cdot (\oA_j)_i$. 
+			\item    For both $j\in \zo$:   $\tA_j \asn  \sum_{i\in (\ell)}    2^\cs \cdot (\oA_j)_i$. 
 			
-			\item  Let  $\pi^\EgEqSkS \getsr \pZK{\rEgEqSk}((E,\tA_0,\tA_1
-			), e)$.
+			\item  Let  $\pi^\EgEqSkS \getsr \pZK{\rEgEqSk}((E,\tA_0,\tA_1), e)$.
 			
 			\item Send $\pi^\EgEqSkS$ to \Vc.
 		\end{enumerate}
@@ -583,9 +595,9 @@ In the following, we omit the parameter $b$ from the input list of  \Dec.  We wi
 	\item[\Pc:] On input $((\pk,\oA,b),(\oa,\orr))$:
 	
 	\begin{enumerate}
-			\item   $a \asn  \sum_{i\in (\ell)}   2^c \cdot \oa_i$. 
-		\item    $\tA \asn  \sum_{i\in (\ell)}    2^c \cdot \oA_i$. 
-		\item    $r \asn  \sum_{i\in (\ell)}  2^c \cdot \orr_i$. 
+			\item   $a \asn  \sum_{i\in (\ell)}   2^\cs \cdot \oa_i$. 
+		\item    $\tA \asn  \sum_{i\in (\ell)}    2^\cs \cdot \oA_i$. 
+		\item    $r \asn  \sum_{i\in (\ell)}  2^\cs \cdot \orr_i$. 
         
         \item  Output $\pi \asn \pZK{\rEgRp}((\pk,\tA,b), (a,r))$.
         
@@ -620,9 +632,15 @@ In the following, we omit the parameter $b$ from the input list of  \Dec.  We wi
 		
 		\begin{enumerate}
 		
-			\item    $\tA \asn  \sum_{i\in (\ell)}    2^c \cdot \oA_i$. 
+		
+			\item   For each $i\in  (\ell)$, let $a_i \asn  \Dec_e(\tA_i)$.
 			
-			\item   $a \asn  \Dec_e(\tA)$. \Inote{Switch}
+			
+			\item  Let  $a\asn  \sum_{i\in (\ell)}    2^\cs \cdot a_i$. 
+			
+			\item    $\tA \asn  \sum_{i\in (\ell)}    2^\cs \cdot \oA_i$. 
+			
+		
 			
 			\item   $\tA' \asn \Enc_E(a;r)$ for $r\getsr \Z_q$.
 			
@@ -695,7 +713,7 @@ Since the decryption procedure of of chunk-ElGamal  encryption scheme only guara
  
 	\item[Transfer.]   In addition to the original protocol, $\Uc_s$
 	\begin{enumerate}
-		\item Provides a proof that $X_d$ is fresh, \ie using \pZK{\rtFsh} with parameter $b\asn 2^c$.
+		\item Provides a proof that $X_d$ is fresh, \ie using \pZK{\rtFsh} with parameter $b\asn 2^\cs$.
 		
 		\item Refreshes its active balance: it sends $\oA_s' \asn \oA_s - \oX_s$ to \Cc and a proof 
 			that $\oA_s' + \oX_s = \oA_s$, using   \pZK{\rEqSk}.
@@ -850,7 +868,7 @@ The threshold scheme  $(\tdKg,\tdEnc,\tdDec)$ is defined as follows:
 Note that the public key and the encryption algorithm of the above scheme are identical to that \cref{alg:tEGinExp}, the twisted ElGamal in-the-exponent encryption scheme. So almost all the machinery  developed on top of \cref{alg:tEGinExp} is applicable to the above scheme without any change, \ie the zero-knowledge protocols and chunk EG scheme. The only exception are the protocols that require knowledge of the secrete key, but those are irrelevant for are use case of   threshold encryption.
 
 \subsubsection{Distributed Key Generation}
-In this part we present a variant of the standard distributed key-generation  protocol for the key generation algorithm \tdKg described above.  We make use of the following two-party multiplication   functionality.
+In this section, we present a distributed key-generation  protocol for the key generation algorithm \tdKg described above.  We make use of the following two-party multiplication   functionality.
 
 \begin{functionality}[\Mult: two-party multiplication]\label{func:Mult}~
 \item[Parties:] $\Pc_0,\Pc_1$.

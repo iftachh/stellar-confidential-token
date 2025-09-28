@@ -9,7 +9,7 @@
 \newcommand{\balance}{\mathsf{avlBlance}}
 \newcommand{\pendbalance}{\mathsf{pndBalance}}
 \newcommand{\tcount}{\mathsf{pndCount}}
-%\newcommand{\gcount}{\mathsf{gCount}}
+\newcommand{\gcount}{\mathsf{gCount}}
 
 
 \newcommand{\historylog}{\mathsf{log}}
@@ -23,7 +23,7 @@
 
 \newcommand{\pcountCns}{p_{\mathsf{count}} }
 \newcommand{\psizeCns}{p_{\mathsf{size}} }
-%\newcommand{\gcountCns}{g_{\mathsf{count}} }
+\newcommand{\gcountCns}{g_{\mathsf{count}} }
 
 
 %Relations
@@ -64,14 +64,14 @@
 \newcommand{\rRp}{\hyperref[rel:Rp]{\cR_\RPs}}
 \newcommand{\rRpDef}
 {
-	\sset{((\pk,\oA,b),(a,r))\colon \Enc_\pk(a;r)= \oA \sland a\in (b)}
+	\sset{((\pk,\oA,\cS),(a,r))\colon \Enc_\pk(a;r)= \oA \sland a\in \cS}
 }
 
 \newcommand{\RpSkS}{{\sf RpSk}}
 \newcommand{\rRpSk}{\hyperref[rel:RpSk]{\cR_\RpSkS}}
 \newcommand{\rRpSkDef}
 {
-	\sset{((\pk,\oA,b),w)\colon \KeyGen(w) = (\sk,\pk) \sland  \Dec_\sk(\oA) \in (b)}
+	\sset{((\pk,\oA,\cS),w)\colon \KeyGen(w) = (\sk,\pk) \sland  \Dec_\sk(\oA) \in \cS}
 }
 
 
@@ -98,7 +98,7 @@ In this section we define the ideal functionality for the confidential transacti
 	\ldots,\Uc_n$.
 	
 	
-	\item[Parameters:] $\pcountCns,\psizeCns,q \in \N$.
+	\item[Parameters:] $\pcountCns,\psizeCns,\gcountCns, q \in \N$.
 	
 	
 	\begin{description}
@@ -108,9 +108,9 @@ In this section we define the ideal functionality for the confidential transacti
 		\begin{enumerate}
 			
 			
-			\item \Assert{$x\in (\psizeCns) \sland \tcount_d\le  \pcountCns$}.
+			\item \Assert{$x\in (\psizeCns) \sland \tcount_d\le  \pcountCns \sland \gcount_d\le  \gcountCns$}.
 			
-			\item $\tcount_d^{++}$.
+			\item $\tcount_d^{++},\gcount_d^{++}$.
 			
 			\item $\pendbalance_d \pluseq x$.
 			
@@ -122,9 +122,9 @@ In this section we define the ideal functionality for the confidential transacti
 		
 	
 		\begin{enumerate}
-			\item \Assert{$ x\in (\psizeCns) \sland \tcount_d\le  \pcountCns  \sland \balance_s  \ge x $}.
+			\item \Assert{$ x\in (\psizeCns) \sland \tcount_d\le  \pcountCns  \sland \gcount_d\le  \gcountCns  \sland \balance_s  \ge x $}.
 			
-				\item $\tcount_d^{++}$.
+				\item $\tcount_d^{++},\gcount_d^{++}$.
 				
 				
 			\item $\balance_s \minuseq x$.
@@ -144,7 +144,7 @@ In this section we define the ideal functionality for the confidential transacti
 		
 		\begin{enumerate}
 			
-			\item $\Assert{\balance_i \le q/4}$.\footnote{This check is to prevent overflow. In reality, it will never fire.}
+		%	\item $\Assert{\balance_i \le q/4}$.\footnote{This check is to prevent overflow. In reality, it will never fire.}
 			
 			\item $\tcount_i \asn 0$.
 			
@@ -242,6 +242,17 @@ This sub-protocol is were the encryption key are sampled and shared, and the cha
 					
 				\end{enumerate}
 				
+				
+					\item   $\Auditor$: 
+					
+					\begin{enumerate}
+					\item 		Generate $(\pk_A,\sk_A)$ as above.
+					
+					\item Send $\pk_A$ to \Cc.
+					
+					\end{enumerate}
+				
+					
 				\item \Cc: ~
 				
 				\begin{enumerate}
@@ -251,13 +262,13 @@ This sub-protocol is were the encryption key are sampled and shared, and the cha
 				\begin{enumerate}
 					\item 	 $\vZKPOK{\rKeyGen}(pk_i,\pi_i)$.\footnote{Here and after,  \Cc aborts and publish the prover identity if the   proof is not verified.}
 					
-					\item $\oP_i\getsr \Enc_{\pk_i}(0;0),\oA_i\getsr \Enc_{\pk_i}(0;0),\tcount_i 
+					\item $\oP_i\getsr \Enc_{\pk_i}(0;0),\oA_i\getsr \Enc_{\pk_i}(0;0),\tcount_i,\gcount_i 
 					\asn 0$. 
 					
 			
 				\end{enumerate}
 			
-		\item Broadcast $(\init,\sset{\pk_i,\oA_i,\oP_i}_{i\in [n]})$.\footnote{Since all ciphertext are known constants, \Cc can skip actually broadcasting them.}
+		\item Broadcast $(\init,\sset{\pk_i,\oA_i,\oP_i}_{i\in [n]},\pk_A)$.\footnote{Since all ciphertexts are known constants, \Cc can skip actually broadcasting them.}
 		%	\item     Broadcast $\historylog \asn \emptyset$.
 				\end{enumerate}								
 			\end{enumerate}
@@ -274,7 +285,7 @@ This sub-protocol is were the encryption key are sampled and shared, and the cha
 	
 	\item[Operation:]  \Cc~
 		\begin{enumerate}
-			\item \Assert{$d\in [n] \sland \tcount_d  \le \pcountCns \sland x\in (\psizeCns)$}
+			\item \Assert{$d\in [n] \sland \tcount_d  \le \pcountCns \sland \gcount_d  \le \gcountCns \sland x\in (\psizeCns)$}
 			
 			\item  $\oP_d \pluseq \Enc_{\pk_d}(x)$.
 				
@@ -336,21 +347,28 @@ The protocol uses ZK and ZKPOK proofs for the   following  relations:
 			\item $\oX_s \getsr \Enc_{\pk_d}(x;r_s)$ for $r_s \getsr \cD$.
 			
 		
-			\item $\pi^\RPs \getsr \pZKPOK{\rRp}((\pk_s,\oX_s,\psizeCns),(x,r_s))$.
+			\item $\pi^\RPs \getsr \pZKPOK{\rRp}((\pk_s,\oX_s,(\psizeCns)),(x,r_s))$.
 			
 			
 			\item $\oX_d \getsr \Enc_{\pk_d}(x;r_d)$ for $r_d \getsr \cD$.
 			
 			
-		\item $\pi^\Eqs \getsr \pZK{\rEq}((\pk_s,\pk_d,\oX_s, \oX_d),(x,r_s,r_d))$.
 			
+		\item $\pi^\Eqs_d \getsr \pZK{\rEq}((\pk_s,\pk_d,\oX_s, \oX_d),(x,r_s,r_d))$.
+			
+			
+			\item $\oX_A \getsr \Enc_{\pk_A}(x;r_A)$ for $r_A \getsr \cD$.
+		
+			\item $\pi^\Eqs_A \getsr \pZK{\rEq}((\pk_s,\pk_A,\oX_s, \oX_A),(x,r_s,r_A))$.
+		
+		
 			
 		
 			
-		\item $\pi^\RpSkS \getsr \pZK{\rRpSk}((\pk_s,\oA_s- \oX_s, q/2),\sk_s)$.\footnote{Since  the protocol enforces that there  are at most  $q/\psizeCns$  increments of $\oA_s$, it holds that  $\oA_s$ is smaller than $q/2$. So the Since $\psizeCns \le q/2$ as well, this check is equivalent to ``$\oA_s- \oX_s$ encrypts a non-negative value''. \Inote{Rephrase}} 
+		\item $\pi^\RpSkS \getsr \pZK{\rRpSk}((\pk_s,\oA_s- \oX_s, (q/2)),\sk_s)$.\footnote{Since  the protocol enforces that there  are at most  $\gcountCns$  increments of $\oA_s$, it holds that  $\oA_s$ is smaller than $q/2$. Hence, this check is equivalent to ``$\oA_s- \oX_s$ encrypts a non-negative value''.} 
 			
 			
-			\item Send $(\oX_s,\oX_d,\pi^\RPs,\pi^\Eqs,\pi^\RpSkS)$ to \Cc.   
+			\item Send $(\oX_s,\oX_d,\oX_A,\pi^\RPs,\pi^\Eqs_d,\pi^\Eqs_A,\pi^\RpSkS)$ to \Cc.   
 		\end{enumerate}
 		
 		
@@ -358,13 +376,17 @@ The protocol uses ZK and ZKPOK proofs for the   following  relations:
 		
 		\begin{enumerate}
 			
-			\item  $\Assert{\tcount_d \le \pcountCns}$.
+			\item  $\Assert{\tcount_d \le \pcountCns \sland \gcount_d  \le \gcountCns}$.
 				
-			\item   $\vZKPOK{\rRp}((\pk_d,\oX_d,\psizeCns),\pi^\RPs)$,
+			\item   $\vZKPOK{\rRp}((\pk_d,\oX_d,(\psizeCns)),\pi^\RPs)$,
 			
-			 $\vZK{\rEq}((\pk_s,\pk_d,\oX_s,\oX_d),\pi^\Eqs)$ and
+			 $\vZK{\rEq}((\pk_s,\pk_d,\oX_s,\oX_d),\pi^\Eqs_d)$,
 			 
-			  $\vZK{\rRpSk}((\pk_s,\oA_s-\oX_s,q/2),\pi^\RpSkS)$. 
+			  $\vZK{\rEq}((\pk_s,\pk_A,\oX_s,\oX_A),\pi^\Eqs_A)$
+			  
+			  and
+			 
+			  $\vZK{\rRpSk}((\pk_s,\oA_s-\oX_s,(q/2)),\pi^\RpSkS)$. 
 			
 	
 		
@@ -377,7 +399,7 @@ The protocol uses ZK and ZKPOK proofs for the   following  relations:
               
 		    % \item  $\historylog \unioneq (\transfer,s,d,\oA_s,\oP_d)$.
 		     
-		     \item Broadcast $(\transfer,s,d,\oP_d)$.
+		     \item Broadcast $(\transfer,s,d,\oP_d,\oX_A)$.
 		\end{enumerate}
 		
 	\end{enumerate}
@@ -391,16 +413,12 @@ The protocol uses ZK and ZKPOK proofs for the   following  relations:
 \begin{protocol}[\pConfTran.Rollover]~\label{prot:ConfidentialTransactions:Rollover}
 	\item[Parties.] $\Uc_i$ and \Cc.
 	
-\item[Operation:] ~
-%\begin{enumerate}
-%	\item $\Uc_i$: Send $\pi^\RpSkS \getsr \pZKPOK{\rRp}((\pk_s,\oA_i,q/4),\sk_i)$ to \Cc.
-	%\item 	
+\item[Operation:] 
 	\Cc:
 	\begin{enumerate}
 	
 %	\item Call $\vZKPOK{\RpSkS}((\pk_s,\oA_i,q/4),\pi^\RPs)$.
 	
-	\item $\Assert{\balance_i \le q/4}$
 		
 	\item $\oA_i  \pluseq \oP_i$.
 	
@@ -420,16 +438,58 @@ The protocol uses ZK and ZKPOK proofs for the   following  relations:
 
 \subsubsection{Withdraw} 
 
-\Inote{TODO}
+\begin{protocol}[\pConfTran.Withdraw]~\label{prot:ConfidentialTransactions:Withdraw}
+	\item[Parties:] $\Uc_i$ and \Cc.
+	
+	
+	
+	\item[Common input:]  $x\in[q/4]$.
+	
+	\item[Operation:]  ~
+	
+	\begin{enumerate}
+		
+		\item  $\Uc_i$:  Send $\pi^\RpSkS \getsr \pZKPOK{\rRpSk}((\pk_i,\oA_i,[x,q/2]),\sk_i)$ to \Cc.
+	
+	
+	\item  \Cc: 
+	\begin{enumerate}
+		\item Call $\vZKPOK{\rRpSk}((\pk_i,\oA_i,[x,q/2]),pi^\RpSkS)$.
+		
+		\item Let $\oA_i \minuseq \Enc_{\pk_i}(x;0)$.
+		
+		\item Broadcast $(\withraw,i,x)$
+	\end{enumerate}
+\end{enumerate}
+\end{protocol}
+
+
 
 \subsubsection{Audit} 
 
-\Inote{TODO}
+\begin{protocol}[\pConfTran.Audit]~\label{prot:ConfidentialTransactions:Audit}
+	\item[Parties:] \Auditor.
+	
+	
+	
+	
+	\item[Operation:]   For each  published transfer operation   $(\transfer,s,d,\oP_d,\oX_A)$,  \Auditor
+	
+	\begin{enumerate}
+		\item Let $x \asn \Dec_{\sk_A} (\oX_A)$.
+		
+		\item Output $((\transfer,s,d,x))$.
+	\end{enumerate}
+	
+\end{protocol}
+
+
+
 
 
 \subsection{Security of \cref{prot:ConfidentialTransactions}}
 \begin{theorem}[Security of \cref{prot:ConfidentialTransactions}]\label{thm:ConfidentialTransactions}
-Assuming  $(\KeyGen,\Enc,\Dec)$ is CPA secure, then \cref{prot:ConfidentialTransactions} UC-realizes (with static security\Inote{?}) \cref{func:ConfidentialTransactions} against semi-honest chain holder and mint.
+Assuming  $(\KeyGen,\Enc,\Dec)$ is CPA secure, then \cref{prot:ConfidentialTransactions} UC-realizes \cref{func:ConfidentialTransactions} against semi-honest chain holder and mint.
 \end{theorem}
 
 \begin{proof}
